@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Uniform Distribution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .math-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.25rem;
+        }
+
+        .math-numerator {
+            border-bottom: 1px solid currentColor;
+            padding: 0 0.25rem;
+            line-height: 1.2;
+        }
+
+        .math-denominator {
+            padding: 0 0.25rem;
+            line-height: 1.2;
+        }
+
+        /* Custom scrollbar for the formula container */
+        .scrollable-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .scrollable-content {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 flex items-center justify-center p-4">
+
+    <div
+        class="max-w-5xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col border border-slate-100 h-[85vh] md:h-[700px]">
+
+        <!-- Header -->
+        <header class="bg-indigo-600 text-white p-6 shadow-md relative z-10">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Understanding the Uniform Distribution</h1>
+            <p class="text-indigo-100 mt-1">A step-by-step interactive visualization</p>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
+
+            <!-- Left Side: Text and Descriptions -->
+            <div class="w-full md:w-5/12 p-6 md:p-8 overflow-y-auto border-b md:border-b-0 md:border-r border-slate-100 flex flex-col justify-center bg-slate-50/50"
+                id="text-container">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-2 block" id="step-badge">Step
+                    1 of 5</span>
+                <h2 class="text-2xl font-bold text-slate-800 mb-4" id="step-title">Introduction</h2>
+
+                <div class="prose prose-slate prose-p:leading-relaxed" id="step-description">
+                    <!-- Text will be injected here -->
+                </div>
+
+                <div class="mt-8 bg-indigo-50 border border-indigo-100 rounded-xl p-5 shadow-sm text-sm"
+                    id="step-example">
+                    <!-- Example will be injected here -->
+                </div>
+            </div>
+
+            <!-- Right Side: Visualization / Formulas -->
+            <div class="w-full md:w-7/12 p-6 md:p-8 flex items-center justify-center bg-white relative min-h-0">
+
+                <!-- Canvas for Steps 1-4 -->
+                <canvas id="vizCanvas" class="w-full h-auto max-w-[600px] shadow-sm rounded-lg border border-slate-100"
+                    width="600" height="400"></canvas>
+
+                <!-- Formula Container for Step 5 -->
+                <div id="formula-container"
+                    class="hidden w-full max-w-lg fade-in overflow-y-auto max-h-full pr-2 scrollable-content">
+                    <div class="py-2">
+                        <h3 class="text-xl font-bold mb-6 text-center text-slate-800">Mathematical Blueprint</h3>
+
+                        <div class="space-y-6 pb-6">
+                            <!-- Notation -->
+                            <div
+                                class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="font-semibold text-slate-600">Notation:</span>
+                                <span class="text-lg font-mono text-indigo-700">X ~ U(a, b)</span>
+                            </div>
+
+                            <!-- PDF -->
+                            <div
+                                class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="font-semibold text-slate-600">PDF <span
+                                        class="text-xs font-normal text-slate-400 block">Probability Density
+                                        Function</span></span>
+                                <div class="text-lg font-mono text-indigo-700 flex items-center">
+                                    f(x) =
+                                    <div class="math-fraction">
+                                        <span class="math-numerator">1</span>
+                                        <span class="math-denominator">b - a</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mean -->
+                            <div
+                                class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="font-semibold text-slate-600">Mean (&mu;):</span>
+                                <div class="text-lg font-mono text-indigo-700 flex items-center">
+                                    <div class="math-fraction">
+                                        <span class="math-numerator">a + b</span>
+                                        <span class="math-denominator">2</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Variance -->
+                            <div
+                                class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="font-semibold text-slate-600">Variance (&sigma;²):</span>
+                                <div class="text-lg font-mono text-indigo-700 flex items-center">
+                                    <div class="math-fraction">
+                                        <span class="math-numerator">(b - a)²</span>
+                                        <span class="math-denominator">12</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CDF -->
+                            <div class="flex flex-col p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <span class="font-semibold text-slate-600 mb-2">CDF <span
+                                        class="text-xs font-normal text-slate-400">(Cumulative Distribution
+                                        Function)</span>:</span>
+                                <div class="text-lg font-mono text-indigo-700 flex items-center justify-center">
+                                    F(x) =
+                                    <div class="math-fraction ml-2">
+                                        <span class="math-numerator">x - a</span>
+                                        <span class="math-denominator">b - a</span>
+                                    </div>
+                                    <span class="ml-2 text-sm text-slate-500">(for a &le; x &le; b)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer / Navigation -->
+        <footer class="bg-white border-t border-slate-200 p-4 md:p-6 flex items-center justify-between z-10">
+            <button id="prevBtn"
+                class="px-5 py-2.5 rounded-lg font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                &larr; Previous
+            </button>
+
+            <div class="flex space-x-2" id="dots-container">
+                <!-- Dots injected via JS -->
+            </div>
+
+            <button id="nextBtn"
+                class="px-5 py-2.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                Next Step &rarr;
+            </button>
+        </footer>
+    </div>
+
+    <script src="../js/uniform_dist.js"></script>
+</body>
+
+</html>

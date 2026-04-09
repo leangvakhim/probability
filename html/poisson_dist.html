@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding the Poisson Distribution</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- KaTeX for Math Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        /* Smooth transitions for steps */
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .step-active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom slider styling */
+        input[type=range] {
+            accent-color: #4f46e5;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full overflow-hidden flex flex-col min-h-[600px]">
+
+        <!-- Header / Progress Bar -->
+        <div class="bg-indigo-600 text-white p-6 relative">
+            <h1 class="text-2xl font-bold">The Poisson Distribution</h1>
+            <p class="text-indigo-200 mt-1">A Step-by-Step Interactive Guide</p>
+
+            <!-- Progress Indicators -->
+            <div class="flex justify-between mt-6 relative">
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-indigo-400 -z-0 transform -translate-y-1/2"></div>
+                <!-- Generated dynamically via JS -->
+                <div id="progress-dots" class="flex w-full justify-between z-10"></div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-8 flex-grow flex flex-col relative">
+
+            <!-- STEP 1: Introduction -->
+            <div id="step-0" class="step-container step-active">
+                <h2 class="text-3xl font-bold text-indigo-700 mb-4">1. What is it?</h2>
+                <div class="prose max-w-none text-lg leading-relaxed text-slate-600 mb-6">
+                    <p>Imagine you run a small coffee shop. You want to know: <strong>"How many customers will walk
+                            through the door in the next hour?"</strong></p>
+                    <p>The <strong>Poisson Distribution</strong> is a mathematical concept that helps predict the
+                        probability of a given number of events happening in a <em>fixed interval of time or space</em>.
+                    </p>
+                </div>
+
+                <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                    <h3 class="font-semibold text-indigo-800 mb-2">Real-World Example:</h3>
+                    <p class="text-sm text-slate-700 mb-4">You sit and watch the door for one hour. Customers arrive
+                        randomly. Let's visualize this timeline. Each dot is a customer arriving.</p>
+
+                    <!-- Timeline Canvas -->
+                    <div
+                        class="relative h-24 bg-white rounded-lg border border-slate-200 shadow-inner flex items-center px-4 overflow-hidden">
+                        <div class="absolute left-0 w-full h-1 bg-slate-300"></div>
+                        <canvas id="timelineCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                        <span class="absolute left-2 bottom-2 text-xs text-slate-500 font-bold">Start (0 min)</span>
+                        <span class="absolute right-2 bottom-2 text-xs text-slate-500 font-bold">End (60 min)</span>
+                    </div>
+                    <button id="simulateBtn"
+                        class="mt-4 px-4 py-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition text-sm font-semibold">Simulate
+                        1 Hour</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Lambda -->
+            <div id="step-1" class="step-container">
+                <h2 class="text-3xl font-bold text-indigo-700 mb-4">2. The Magic Number: Lambda ($\lambda$)</h2>
+                <div class="prose max-w-none text-lg leading-relaxed text-slate-600 mb-6">
+                    <p>The entire Poisson distribution is built around just <strong>one single number</strong>: Lambda
+                        ($\lambda$).</p>
+                    <p>$\lambda$ represents the <strong>average rate</strong> of occurrences. If you usually get an
+                        average of 4 customers an hour, then $\lambda = 4$. But remember, "average" doesn't mean exact!
+                        In any given hour, you might get 2, or maybe 7.</p>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
+                        <div class="w-full md:w-1/2">
+                            <label for="lambdaSlider" class="block text-sm font-bold text-slate-700 mb-2">Adjust Average
+                                Rate ($\lambda$): <span id="lambdaValue"
+                                    class="text-indigo-600 text-xl">4</span></label>
+                            <input type="range" id="lambdaSlider" min="1" max="20" value="4"
+                                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            <p class="text-xs text-slate-500 mt-2">Try sliding it! Notice how the curve shifts right and
+                                flattens out.</p>
+                        </div>
+                        <div class="w-full md:w-1/2 text-sm bg-indigo-50 p-3 rounded text-indigo-800">
+                            <strong>Interpretation:</strong> If $\lambda$ is <span id="interp-lambda">4</span>, the
+                            highest bar (most likely outcome) is around <span id="interp-lambda">4</span>. But there's
+                            still a chance of getting 0, or 10!
+                        </div>
+                    </div>
+
+                    <!-- Chart.js Container -->
+                    <div class="relative h-64 w-full">
+                        <canvas id="poissonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Assumptions -->
+            <div id="step-2" class="step-container">
+                <h2 class="text-3xl font-bold text-indigo-700 mb-4">3. When can we use it?</h2>
+                <div class="prose max-w-none text-lg leading-relaxed text-slate-600 mb-6">
+                    <p>You can't use the Poisson Distribution for just anything. It only works if your real-world
+                        scenario meets three strict assumptions:</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Assumption 1 -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <div
+                            class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl mb-4 font-bold">
+                            1</div>
+                        <h3 class="font-bold text-slate-800 mb-2">Independence</h3>
+                        <p class="text-sm text-slate-600">One event doesn't affect the next. If one customer walks in,
+                            it doesn't make it more or less likely for another to immediately follow.</p>
+                    </div>
+                    <!-- Assumption 2 -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <div
+                            class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl mb-4 font-bold">
+                            2</div>
+                        <h3 class="font-bold text-slate-800 mb-2">Constant Rate</h3>
+                        <p class="text-sm text-slate-600">The average rate ($\lambda$) remains constant during the
+                            interval. A coffee shop rush hour (variable rate) would violate this!</p>
+                    </div>
+                    <!-- Assumption 3 -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <div
+                            class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xl mb-4 font-bold">
+                            3</div>
+                        <h3 class="font-bold text-slate-800 mb-2">Singularity</h3>
+                        <p class="text-sm text-slate-600">Events occur one at a time. Two events cannot happen at the
+                            exact same fraction of a second.</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-sm text-yellow-800">
+                    <strong>Other examples where Poisson works well:</strong> Number of typos on a book page, number of
+                    meteors seen in an hour, number of emails received per day.
+                </div>
+            </div>
+
+            <!-- STEP 4: Recap & Formula -->
+            <div id="step-3" class="step-container">
+                <h2 class="text-3xl font-bold text-indigo-700 mb-4">4. Recap & The Math</h2>
+                <div class="prose max-w-none text-lg leading-relaxed text-slate-600 mb-4">
+                    <p>To recap: The Poisson Distribution calculates the probability of exactly $k$ events happening in
+                        an interval, given an average rate of $\lambda$.</p>
+                    <p>Here is the formal equation (Probability Mass Function) that generated all those bar charts:</p>
+                </div>
+
+                <div class="bg-white border-2 border-indigo-100 rounded-xl p-8 text-center shadow-sm mb-6">
+                    <!-- KaTeX Formula -->
+                    <div class="text-2xl md:text-4xl text-slate-800 mb-4 overflow-x-auto overflow-y-hidden py-4">
+                        $$P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}$$
+                    </div>
+
+                    <div
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-left mt-6 pt-6 border-t border-slate-100">
+                        <div><strong class="text-indigo-600">P(X = k)</strong><br>Probability of exactly $k$ events
+                        </div>
+                        <div><strong class="text-indigo-600">$\lambda$ (Lambda)</strong><br>The average rate of
+                            occurrence</div>
+                        <div><strong class="text-indigo-600">$e$</strong><br>Euler's number ($\approx 2.71828$)</div>
+                        <div><strong class="text-indigo-600">$k!$</strong><br>Factorial of $k$ (e.g., $3! = 3 \times 2
+                            \times 1$)</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-center">
+                        <span class="font-semibold text-slate-700">Expected Value (Mean) $\mu$:</span>
+                        <span class="text-xl font-bold text-indigo-600">$\lambda$</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-center">
+                        <span class="font-semibold text-slate-700">Variance $\sigma^2$:</span>
+                        <span class="text-xl font-bold text-indigo-600">$\lambda$</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer / Controls -->
+        <div class="bg-slate-50 border-t border-slate-200 p-6 flex justify-between items-center">
+            <button id="prevBtn"
+                class="px-6 py-2.5 rounded-lg font-semibold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                &larr; Previous
+            </button>
+            <button id="nextBtn"
+                class="px-6 py-2.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-md hover:shadow-lg">
+                Next Step &rarr;
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/poisson_dist.js"></script>
+</body>
+
+</html>

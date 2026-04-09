@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binomial Distribution Explorer</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js for Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- MathJax for rendering LaTeX equations -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        /* Custom animations for smooth transitions */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            accent-color: #3b82f6;
+            /* Tailwind Blue-500 */
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 shadow-sm py-4 px-6 md:px-12 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-blue-700 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+                Binomial Distribution
+            </h1>
+            <div class="text-sm font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full" id="step-indicator">
+                Step 1 of 5
+            </div>
+        </div>
+        <!-- Progress Bar -->
+        <div class="max-w-6xl mx-auto mt-4 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div id="progress-bar" class="bg-blue-600 h-1.5 transition-all duration-300 ease-out" style="width: 20%;">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-6 md:p-12">
+        <div
+            class="max-w-6xl w-full bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative">
+
+            <!-- STEP 1: The Bernoulli Trial -->
+            <div id="step-0"
+                class="step-content p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center fade-in">
+                <div>
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Step 1</span>
+                    <h2 class="text-3xl font-bold mt-2 mb-4">The Bernoulli Trial</h2>
+                    <p class="text-slate-600 mb-4 text-lg">
+                        Before we understand the Binomial Distribution, we must start with a single event. This is
+                        called a <strong>Bernoulli trial</strong>—an experiment with exactly two possible outcomes:
+                        "Success" or "Failure".
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-6">
+                        <h3 class="font-bold text-blue-800 mb-1">Real-World Example</h3>
+                        <p class="text-blue-900">
+                            Imagine a basketball player taking a single free throw. They either make the shot (Success)
+                            or miss it (Failure). <br><br>Let's say our player has a <strong>70% chance</strong> of
+                            making a shot ($p = 0.7$). Therefore, the chance of missing ($1 - p$) is
+                            <strong>30%</strong>.
+                        </p>
+                    </div>
+                </div>
+                <div
+                    class="bg-slate-50 rounded-xl p-8 flex flex-col items-center justify-center border border-slate-100 h-full min-h-[300px]">
+                    <div class="relative w-full max-w-sm">
+                        <!-- Origin -->
+                        <div
+                            class="w-16 h-16 bg-slate-800 rounded-full text-white flex items-center justify-center font-bold text-xl mx-auto mb-8 shadow-lg">
+                            1 Shot</div>
+
+                        <!-- Branches -->
+                        <div
+                            class="flex justify-between relative before:absolute before:content-[''] before:w-1/2 before:h-0.5 before:bg-slate-300 before:top-[-1.5rem] before:left-1/4 before:rotate-[20deg] after:absolute after:content-[''] after:w-1/2 after:h-0.5 after:bg-slate-300 after:top-[-1.5rem] after:right-1/4 after:rotate-[-20deg]">
+
+                            <!-- Success -->
+                            <div class="flex flex-col items-center z-10">
+                                <div
+                                    class="w-20 h-20 bg-green-500 rounded-full text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-green-200">
+                                    Make</div>
+                                <span class="mt-3 font-semibold text-green-700">Success ($p$)</span>
+                                <span
+                                    class="bg-white px-2 py-1 rounded shadow-sm text-sm font-bold mt-1 text-slate-700">70%
+                                    (0.7)</span>
+                            </div>
+
+                            <!-- Failure -->
+                            <div class="flex flex-col items-center z-10">
+                                <div
+                                    class="w-20 h-20 bg-red-500 rounded-full text-white flex items-center justify-center font-bold text-lg shadow-lg border-4 border-red-200">
+                                    Miss</div>
+                                <span class="mt-3 font-semibold text-red-700">Failure ($1-p$)</span>
+                                <span
+                                    class="bg-white px-2 py-1 rounded shadow-sm text-sm font-bold mt-1 text-slate-700">30%
+                                    (0.3)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Multiple Trials -->
+            <div id="step-1"
+                class="step-content p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center hidden fade-in">
+                <div>
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Step 2</span>
+                    <h2 class="text-3xl font-bold mt-2 mb-4">Multiple Independent Trials ($n$)</h2>
+                    <p class="text-slate-600 mb-4 text-lg">
+                        The Binomial Distribution looks at what happens when we repeat this single trial multiple times.
+                        A crucial rule is that these trials must be <strong>independent</strong>, meaning the outcome of
+                        one doesn't affect the next.
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-6">
+                        <h3 class="font-bold text-blue-800 mb-1">Real-World Example</h3>
+                        <p class="text-blue-900">
+                            Our player now takes <strong>3 free throws in a row</strong> ($n = 3$). Each individual shot
+                            still has that same 70% chance of going in. We want to find the probabilities of all the
+                            possible overall outcomes (making 0, 1, 2, or 3 shots).
+                        </p>
+                    </div>
+                </div>
+                <div
+                    class="bg-slate-50 rounded-xl p-8 flex flex-col items-center justify-center border border-slate-100 h-full min-h-[300px]">
+                    <h3 class="text-lg font-bold text-slate-700 mb-6">3 Independent Shots ($n=3$)</h3>
+                    <div class="flex gap-6">
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center text-2xl shadow-inner border-2 border-slate-300">
+                                🏀</div>
+                            <span class="mt-2 text-sm font-semibold text-slate-500">Shot 1</span>
+                        </div>
+                        <div class="flex flex-col items-center mt-4">
+                            <div
+                                class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center text-2xl shadow-inner border-2 border-slate-300">
+                                🏀</div>
+                            <span class="mt-2 text-sm font-semibold text-slate-500">Shot 2</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center text-2xl shadow-inner border-2 border-slate-300">
+                                🏀</div>
+                            <span class="mt-2 text-sm font-semibold text-slate-500">Shot 3</span>
+                        </div>
+                    </div>
+                    <p class="mt-8 text-sm text-slate-500 text-center italic">Because they are independent, we can
+                        multiply the probabilities of each specific outcome together.</p>
+                </div>
+            </div>
+
+            <!-- STEP 3: Counting Combinations -->
+            <div id="step-2"
+                class="step-content p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center hidden fade-in">
+                <div>
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Step 3</span>
+                    <h2 class="text-3xl font-bold mt-2 mb-4">Targeting Successes ($k$)</h2>
+                    <p class="text-slate-600 mb-4 text-lg">
+                        We often want to find the probability of getting <strong>exactly $k$ successes</strong> out of
+                        our $n$ trials. To calculate this correctly, we must account for all the different order
+                        combinations those successes can happen.
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-6">
+                        <h3 class="font-bold text-blue-800 mb-1">Real-World Example</h3>
+                        <p class="text-blue-900">
+                            What is the probability of making exactly <strong>2 out of 3 shots</strong> ($k = 2$)?
+                            <br><br>
+                            It could happen 3 different ways. Since each way has the same probability ($0.7 \times 0.7
+                            \times 0.3 = 0.147$), we add them up (or multiply by 3). The total probability is
+                            <strong>44.1%</strong>.
+                        </p>
+                    </div>
+                </div>
+                <div
+                    class="bg-slate-50 rounded-xl p-6 flex flex-col items-center justify-center border border-slate-100 h-full">
+                    <h3 class="font-bold text-slate-700 mb-4">Ways to get exactly 2 Makes (Successes)</h3>
+                    <div class="flex flex-col gap-4 w-full max-w-sm">
+
+                        <!-- Combo 1 -->
+                        <div
+                            class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-slate-200">
+                            <div class="flex gap-2">
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    M</div>
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    M</div>
+                                <div
+                                    class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    X</div>
+                            </div>
+                            <div class="text-sm font-mono text-slate-600">$0.7 \times 0.7 \times 0.3 = 0.147$</div>
+                        </div>
+
+                        <!-- Combo 2 -->
+                        <div
+                            class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-slate-200">
+                            <div class="flex gap-2">
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    M</div>
+                                <div
+                                    class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    X</div>
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    M</div>
+                            </div>
+                            <div class="text-sm font-mono text-slate-600">$0.7 \times 0.3 \times 0.7 = 0.147$</div>
+                        </div>
+
+                        <!-- Combo 3 -->
+                        <div
+                            class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-slate-200">
+                            <div class="flex gap-2">
+                                <div
+                                    class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    X</div>
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    M</div>
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                    M</div>
+                            </div>
+                            <div class="text-sm font-mono text-slate-600">$0.3 \times 0.7 \times 0.7 = 0.147$</div>
+                        </div>
+
+                        <div class="border-t-2 border-slate-300 mt-2 pt-2 text-right font-bold text-blue-700">
+                            Total Probability: $0.441$
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Interactive Visualization -->
+            <div id="step-3" class="step-content p-8 md:p-12 flex flex-col gap-6 hidden fade-in w-full">
+                <div class="text-center max-w-3xl mx-auto">
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Step 4</span>
+                    <h2 class="text-3xl font-bold mt-2 mb-3">Visualizing the Distribution</h2>
+                    <p class="text-slate-600">
+                        If we calculate the probability for <em>every</em> possible number of successes ($k = 0, 1, 2,
+                        ..., n$) and plot them, we get the Binomial Distribution curve.
+                    </p>
+                    <p class="text-blue-700 font-semibold mt-2">
+                        Try adjusting the sliders below to see how the number of trials and the success probability
+                        alter the shape of the graph!
+                    </p>
+                </div>
+
+                <div
+                    class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner flex flex-col lg:flex-row gap-8 items-center">
+
+                    <!-- Controls -->
+                    <div class="w-full lg:w-1/3 flex flex-col gap-6">
+                        <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 flex justify-between">
+                                Number of Trials ($n$)
+                                <span id="nValueDisplay" class="text-blue-600">10</span>
+                            </label>
+                            <input type="range" id="nSlider" min="1" max="50" value="10" class="w-full"
+                                oninput="updateChart()">
+                            <p class="text-xs text-slate-400 mt-1">E.g., Number of free throws taken.</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 flex justify-between">
+                                Success Probability ($p$)
+                                <span id="pValueDisplay" class="text-blue-600">0.50</span>
+                            </label>
+                            <input type="range" id="pSlider" min="0.01" max="0.99" step="0.01" value="0.50"
+                                class="w-full" oninput="updateChart()">
+                            <p class="text-xs text-slate-400 mt-1">E.g., The player's accuracy.</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="w-full lg:w-2/3 h-[300px] bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <canvas id="binomialChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5: Recap & Formula -->
+            <div id="step-4" class="step-content p-8 md:p-12 flex flex-col items-center justify-center hidden fade-in">
+                <div class="text-center max-w-3xl mx-auto mb-8">
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Final Step</span>
+                    <h2 class="text-3xl font-bold mt-2 mb-4">The Binomial Formula</h2>
+                    <p class="text-slate-600 text-lg">
+                        Putting it all together, we can summarize everything into one powerful equation. It calculates
+                        the probability $P(X=k)$ of getting exactly $k$ successes in $n$ independent trials.
+                    </p>
+                </div>
+
+                <div
+                    class="bg-white shadow-2xl border border-blue-100 rounded-2xl p-8 w-full max-w-4xl relative overflow-hidden">
+                    <!-- Decorative background element -->
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+
+                    <div class="text-3xl md:text-4xl text-center font-bold text-slate-800 py-6 overflow-x-auto">
+                        $$P(X = k) = \binom{n}{k} \cdot p^k \cdot (1-p)^{n-k}$$
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 border-t border-slate-100 pt-8">
+
+                        <!-- Part 1 -->
+                        <div class="bg-slate-50 p-5 rounded-xl text-center">
+                            <div class="text-2xl mb-2 font-bold text-blue-600">$$\binom{n}{k}$$</div>
+                            <h4 class="font-bold text-slate-800 text-lg">Combinations</h4>
+                            <p class="text-sm text-slate-600 mt-2">
+                                The number of different ways we can pick exactly $k$ successes out of $n$ trials.
+                            </p>
+                            <div class="mt-3 text-xs text-slate-500 font-mono">
+                                $\frac{n!}{k!(n-k)!}$
+                            </div>
+                        </div>
+
+                        <!-- Part 2 -->
+                        <div class="bg-green-50 p-5 rounded-xl text-center">
+                            <div class="text-2xl mb-2 font-bold text-green-600">$$p^k$$</div>
+                            <h4 class="font-bold text-slate-800 text-lg">Successes</h4>
+                            <p class="text-sm text-slate-600 mt-2">
+                                The probability of the success ($p$) happening exactly $k$ times.
+                            </p>
+                        </div>
+
+                        <!-- Part 3 -->
+                        <div class="bg-red-50 p-5 rounded-xl text-center">
+                            <div class="text-2xl mb-2 font-bold text-red-600">$$(1-p)^{n-k}$$</div>
+                            <h4 class="font-bold text-slate-800 text-lg">Failures</h4>
+                            <p class="text-sm text-slate-600 mt-2">
+                                The probability of failure ($1-p$) happening the remaining number of times ($n-k$).
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-8 text-center bg-blue-50 text-blue-800 px-6 py-4 rounded-lg inline-block font-semibold">
+                    🎉 You've successfully learned the mechanics of the Binomial Distribution!
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="bg-white border-t border-slate-200 py-6 px-6 md:px-12 mt-auto">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <button id="prevBtn" onclick="prevStep()" disabled
+                class="px-6 py-3 rounded-lg font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                &larr; Previous
+            </button>
+            <button id="nextBtn" onclick="nextStep()"
+                class="px-8 py-3 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-transform transform active:scale-95 disabled:opacity-50">
+                Next Step &rarr;
+            </button>
+        </div>
+    </footer>
+
+    <script src="../js/binomial_dist.js"></script>
+</body>
+
+</html>

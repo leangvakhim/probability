@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizing Variance in Discrete Distributions</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for rendering math formulas -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Smooth transitions for dynamic content */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Highlight styling for table columns */
+        .highlight-col {
+            background-color: #eff6ff;
+            /* Tailwind blue-50 */
+            font-weight: 600;
+            color: #1d4ed8;
+            /* Tailwind blue-700 */
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4 font-sans text-slate-800">
+
+    <main class="bg-white max-w-5xl w-full rounded-2xl shadow-xl overflow-hidden flex flex-col h-[85vh] min-h-[600px]">
+
+        <!-- Header -->
+        <header class="bg-slate-900 text-white p-6">
+            <h1 class="text-2xl font-bold flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+                Understanding Variance: Step-by-Step
+            </h1>
+
+            <!-- Progress Bar -->
+            <div class="mt-6">
+                <div class="flex justify-between text-xs font-medium text-slate-400 mb-2 font-mono" id="progress-text">
+                    Step 1 of 6
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-500 ease-out"
+                        style="width: 16.66%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
+
+            <!-- Left Panel: Explanations -->
+            <div
+                class="md:w-5/12 p-8 bg-slate-50 border-r border-slate-200 overflow-y-auto flex flex-col justify-center">
+                <div id="step-content" class="fade-in">
+                    <!-- JS will inject title and description here -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Visualization & Math -->
+            <div class="md:w-7/12 p-8 overflow-y-auto flex items-center justify-center relative bg-white">
+                <div id="visual-content" class="w-full fade-in">
+                    <!-- JS will inject tables and formulas here -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer: Navigation Controls -->
+        <footer class="p-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
+            <button id="btn-prev"
+                class="px-6 py-2.5 rounded-lg font-semibold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                &larr; Previous
+            </button>
+
+            <!-- Dots indicator -->
+            <div class="flex space-x-2" id="dots-container">
+                <!-- JS will inject dots here -->
+            </div>
+
+            <button id="btn-next"
+                class="px-6 py-2.5 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                Next Step &rarr;
+            </button>
+        </footer>
+
+    </main>
+
+    <script src="../js/variance.js"></script>
+</body>
+
+</html>

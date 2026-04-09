@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expected Value Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .envelope-hover:hover {
+            transform: translateY(-5px);
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col min-h-[600px]">
+
+        <!-- Header & Progress -->
+        <div class="bg-blue-600 p-6 text-white">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">Understanding Expected Value</h1>
+            <p class="text-blue-100 text-sm md:text-base">A Step-by-Step Interactive Guide</p>
+
+            <div class="mt-6 flex items-center justify-between gap-2">
+                <!-- Progress Dots injected by JS -->
+                <div id="progress-container" class="flex gap-2 w-full"></div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="p-6 md:p-8 flex-grow flex flex-col justify-center" id="content-area">
+            <!-- Dynamic content will be injected here -->
+        </div>
+
+        <!-- Navigation Footer -->
+        <div class="border-t border-slate-100 p-6 flex justify-between bg-slate-50 rounded-b-2xl">
+            <button id="prev-btn"
+                class="px-6 py-2 rounded-lg font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                &larr; Previous
+            </button>
+            <button id="next-btn"
+                class="px-6 py-2 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                Next Step &rarr;
+            </button>
+        </div>
+
+    </div>
+
+    <script src="../js/expected_value.js"></script>
+</body>
+
+</html>
