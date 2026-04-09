@@ -158,19 +158,21 @@ function renderStep() {
     `;
 
     // 3. Render Visual (Table & Math)
+    // Wrap the table in a container with overflow-x-auto
     let tableHTML = `
-        <table class="w-full text-center border-collapse bg-white rounded-lg shadow-sm overflow-hidden border border-slate-200">
-            <thead class="bg-slate-800 text-white font-semibold">
-                <tr>
-                    <th class="p-3 border-b border-slate-700">\\( x \\)</th>
-                    <th class="p-3 border-b border-slate-700">\\( P(x) \\)</th>
-                    ${step.tableCols.includes('xP') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'xP' ? 'bg-blue-600' : ''}">\\( x \\cdot P(x) \\)</th>` : ''}
-                    ${step.tableCols.includes('Dev') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'Dev' ? 'bg-blue-600' : ''}">\\( x - \\mu \\)</th>` : ''}
-                    ${step.tableCols.includes('SqDev') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'SqDev' ? 'bg-blue-600' : ''}">\\( (x - \\mu)^2 \\)</th>` : ''}
-                    ${step.tableCols.includes('Weighted') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'Weighted' ? 'bg-blue-600' : ''}">\\( (x - \\mu)^2 P(x) \\)</th>` : ''}
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200">
+        <div class="w-full overflow-x-auto rounded-lg shadow-sm border border-slate-200 mb-6 mt-8">
+            <table class="w-full text-center border-collapse min-w-max bg-white">
+                <thead class="bg-slate-800 text-white font-semibold">
+                    <tr>
+                        <th class="p-3 border-b border-slate-700">\\( x \\)</th>
+                        <th class="p-3 border-b border-slate-700">\\( P(x) \\)</th>
+                        ${step.tableCols.includes('xP') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'xP' ? 'bg-blue-600' : ''}">\\( x \\cdot P(x) \\)</th>` : ''}
+                        ${step.tableCols.includes('Dev') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'Dev' ? 'bg-blue-600' : ''}">\\( x - \\mu \\)</th>` : ''}
+                        ${step.tableCols.includes('SqDev') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'SqDev' ? 'bg-blue-600' : ''}">\\( (x - \\mu)^2 \\)</th>` : ''}
+                        ${step.tableCols.includes('Weighted') ? `<th class="p-3 border-b border-slate-700 ${step.tableCols[step.tableCols.length - 1] === 'Weighted' ? 'bg-blue-600' : ''}">\\( (x - \\mu)^2 P(x) \\)</th>` : ''}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
     `;
 
     data.forEach((row, index) => {
@@ -184,7 +186,6 @@ function renderStep() {
         }
         if (step.tableCols.includes('Dev')) {
             const isLast = step.tableCols[step.tableCols.length - 1] === 'Dev';
-            // color negative red, positive green slightly
             let colorClass = row.dev < 0 ? 'text-red-600' : (row.dev > 0 ? 'text-green-600' : '');
             tableHTML += `<td class="p-3 border-r border-slate-100 ${isLast ? 'highlight-col' : ''} ${colorClass}">\\( ${row.dev > 0 ? '+' : ''}${row.dev.toFixed(1)} \\)</td>`;
         }
@@ -209,34 +210,34 @@ function renderStep() {
         tableHTML += `<td class="p-3 text-green-700">\\( \\mu = 1.6 \\)</td>`;
     }
     if (step.tableCols.includes('Dev')) {
-        tableHTML += `<td class="p-3 text-slate-400">\\( 0 \\)</td>`; // sum of deviations is always 0
+        tableHTML += `<td class="p-3 text-slate-400">\\( 0 \\)</td>`;
     }
     if (step.tableCols.includes('SqDev')) {
-        tableHTML += `<td class="p-3"></td>`; // No meaningful sum here
+        tableHTML += `<td class="p-3"></td>`;
     }
     if (step.tableCols.includes('Weighted')) {
         tableHTML += `<td class="p-3 text-blue-700 text-lg">\\( \\sigma^2 = 0.84 \\)</td>`;
     }
 
-    tableHTML += `</tr></tbody></table>`;
+    tableHTML += `</tr></tbody></table></div>`; // Closing the table and the overflow wrapper
 
     let formulasHTML = '';
     if (step.showFormulas) {
         formulasHTML = `
-            <div class="mt-8 p-6 bg-slate-800 text-white rounded-xl shadow-lg w-full">
+            <div class="p-6 bg-slate-800 text-white rounded-xl shadow-lg w-full">
                 <h3 class="text-xl font-bold mb-4 border-b border-slate-600 pb-2 text-blue-300">Recap & Formulas</h3>
 
                 <div class="mb-4">
                     <p class="text-slate-300 mb-2 font-semibold">1. Expected Value (Mean)</p>
-                    <div class="bg-slate-900 p-4 rounded-lg flex justify-center text-xl overflow-x-auto">
-                        \\( \\mu = E(X) = \\sum [x \\cdot P(x)] \\)
+                    <div class="bg-slate-900 p-4 rounded-lg text-xl w-full overflow-x-auto">
+                        \\[ \\mu = E(X) = \\sum [x \\cdot P(x)] \\]
                     </div>
                 </div>
 
                 <div>
                     <p class="text-slate-300 mb-2 font-semibold">2. Variance of Discrete Random Variable</p>
-                    <div class="bg-slate-900 p-4 rounded-lg flex justify-center text-xl overflow-x-auto">
-                        \\( Var(X) = \\sigma^2 = \\sum [(x - \\mu)^2 \\cdot P(x)] \\)
+                    <div class="bg-slate-900 p-4 rounded-lg text-xl w-full overflow-x-auto">
+                        \\[ Var(X) = \\sigma^2 = \\sum [(x - \\mu)^2 \\cdot P(x)] \\]
                     </div>
                 </div>
 
@@ -244,7 +245,7 @@ function renderStep() {
                     <p class="text-sm text-slate-400">
                         <strong>Shortcut Formula:</strong> Alternatively, variance can be calculated as expected value of squares minus square of expected value:
                         <br>
-                        <span class="text-yellow-400 mt-2 block text-center">\\( Var(X) = E(X^2) - [E(X)]^2 \\)</span>
+                        <span class="text-yellow-400 mt-2 block text-center">\\[ Var(X) = E(X^2) - [E(X)]^2 \\]</span>
                     </p>
                 </div>
             </div>
