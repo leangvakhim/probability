@@ -17,7 +17,7 @@ window.addEventListener('resize', () => {
 // Parameters for the distribution
 let currentMean = 0;
 let currentStdDev = 5;
-let highlightMode = 'none'; // 'none', 'empirical'
+let highlightMode = 'none'; // 'none', 'empirical', 'zscore', 'ztable'
 
 // The Gaussian function
 function gaussian(x, mean, stdDev) {
@@ -77,6 +77,88 @@ function drawCurve() {
         drawRegion(2, 3, 'rgba(147, 197, 253, 0.15)');
     }
 
+    // Draw shaded region for Z-score step
+    if (highlightMode === 'zscore') {
+        const targetZ = 1.5;
+        const targetX = currentMean + (targetZ * currentStdDev);
+
+        // Shade area to the left of Z = 1.5
+        ctx.beginPath();
+        ctx.moveTo(mapX(xMin), mapY(0));
+        for (let x = xMin; x <= targetX; x += 0.2) {
+            ctx.lineTo(mapX(x), mapY(gaussian(x, currentMean, currentStdDev)));
+        }
+        ctx.lineTo(mapX(targetX), mapY(0));
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'; // blue-500 semi-transparent
+        ctx.fill();
+
+        // Draw Z-score marker line
+        ctx.beginPath();
+        ctx.moveTo(mapX(targetX), mapY(0));
+        ctx.lineTo(mapX(targetX), mapY(gaussian(targetX, currentMean, currentStdDev)));
+        ctx.strokeStyle = '#ef4444'; // red-500
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Label for Z
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        // Offset label slightly to the right to avoid overlap
+        ctx.fillText('Z = 1.5', mapX(targetX) + 24, mapY(0) + 15);
+    }
+
+    // Draw shaded region for Z-table step
+    if (highlightMode === 'ztable') {
+        const targetZ = 1.0; // Arbitrary generic Z position for illustration
+        const targetX = currentMean + (targetZ * currentStdDev);
+
+        // Shade area to the left of Z
+        ctx.beginPath();
+        ctx.moveTo(mapX(xMin), mapY(0));
+        for (let x = xMin; x <= targetX; x += 0.2) {
+            ctx.lineTo(mapX(x), mapY(gaussian(x, currentMean, currentStdDev)));
+        }
+        ctx.lineTo(mapX(targetX), mapY(0));
+        ctx.fillStyle = 'rgba(74, 222, 128, 0.3)'; // green-400 semi-transparent
+        ctx.fill();
+
+        // Draw Z marker line
+        ctx.beginPath();
+        ctx.moveTo(mapX(targetX), mapY(0));
+        ctx.lineTo(mapX(targetX), mapY(gaussian(targetX, currentMean, currentStdDev)));
+        ctx.strokeStyle = '#16a34a'; // green-600
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw Center line (0)
+        ctx.beginPath();
+        ctx.moveTo(mapX(currentMean), mapY(0));
+        ctx.lineTo(mapX(currentMean), mapY(gaussian(currentMean, currentMean, currentStdDev)));
+        ctx.strokeStyle = '#94a3b8'; // slate-400
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Labels
+        ctx.fillStyle = '#16a34a';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Z', mapX(targetX), mapY(0) + 20);
+
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('0', mapX(currentMean), mapY(0) + 40);
+
+        // N(Z) Legend text
+        ctx.fillStyle = '#16a34a';
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('N(Z) = shaded area', mapX(xMin) + 20, mapY(maxY * 0.8));
+    }
+
     // Draw the bell curve path
     ctx.beginPath();
     for (let x = xMin; x <= xMax; x += 0.2) {
@@ -105,6 +187,54 @@ function drawCurve() {
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Mean (μ)', mapX(currentMean), mapY(0) + 15);
+}
+
+// --- Z-Table Generation Functions ---
+function approximateNormalCDF(z) {
+    if (z === 0) return 0.5;
+    const p = 0.2316419;
+    const b1 = 0.319381530;
+    const b2 = -0.356563782;
+    const b3 = 1.781477937;
+    const b4 = -1.821255978;
+    const b5 = 1.330274429;
+    const t = 1 / (1 + p * Math.abs(z));
+    const Z = Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+    const y = 1 - Z * (b1 * t + b2 * t * t + b3 * Math.pow(t, 3) + b4 * Math.pow(t, 4) + b5 * Math.pow(t, 5));
+    return z > 0 ? y : 1 - y;
+}
+
+function generateZTableHtml() {
+    let html = '<div class="mt-6 border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white">';
+    html += '<div class="bg-green-50 px-4 py-3 border-b border-green-100 flex justify-between items-center">';
+    html += '<span class="font-bold text-green-800">Table of Values for N(Z)</span>';
+    html += '<span class="text-xs bg-white px-2 py-1 rounded border border-green-200 text-green-700 font-semibold">For Negative Values: N(-Z) = 1 - N(Z)</span>';
+    html += '</div>';
+
+    html += '<div class="overflow-x-auto overflow-y-auto max-h-[350px] text-xs">';
+    html += '<table class="w-full text-center border-collapse relative">';
+
+    // Header
+    html += '<thead class="bg-slate-100 sticky top-0 shadow-sm z-20">';
+    html += '<tr><th class="p-2 border-r font-bold border-slate-200 bg-slate-200 sticky left-0 z-30">Z</th>';
+    for (let i = 0; i <= 9; i++) {
+        html += `<th class="p-2 text-slate-700 bg-slate-100 border-b border-slate-200 font-bold">0.0${i}</th>`;
+    }
+    html += '</tr></thead><tbody>';
+
+    // Rows (0.0 to 3.4)
+    for (let z = 0; z <= 3.4; z += 0.1) {
+        html += `<tr><td class="p-2 border-r font-bold bg-slate-50 border-slate-200 sticky left-0 z-10">${z.toFixed(1)}</td>`;
+        for (let i = 0; i <= 9; i++) {
+            const currentZ = z + (i * 0.01);
+            const area = approximateNormalCDF(currentZ).toFixed(4);
+            html += `<td class="p-2 border-b border-slate-100 text-blue-700 hover:bg-blue-100 hover:font-bold transition-all cursor-crosshair">${area}</td>`;
+        }
+        html += '</tr>';
+    }
+
+    html += '</tbody></table></div></div>';
+    return html;
 }
 
 // --- Content Steps Data ---
@@ -172,6 +302,26 @@ const steps = [
             currentMean = 0; currentStdDev = 5; highlightMode = 'none';
             document.getElementById('controlsArea').classList.add('hidden');
         }
+    },
+    {
+        title: "6. Z-Scores & The Normal Table",
+        concept: "A <strong>Z-score</strong> tells you exactly how many standard deviations a specific point is from the mean. By converting raw data into Z-scores, we 'standardize' the curve. We can then use a Standard Normal Table (Z-table) to find the exact probability of data falling below that point (represented by the shaded blue area on the graph).",
+        equation: "z = \\frac{x - \\mu}{\\sigma}",
+        exampleTitle: "Real-World Example: Test Scores",
+        example: "Imagine a test with an average score of 70 ($\\mu=70$) and a standard deviation of 10 ($\\sigma=10$). If you scored 85 ($x=85$), your Z-score is:<br><br> $z = \\frac{85 - 70}{10} = 1.5$<br><br>This means your score is 1.5 standard deviations above the mean. Looking up $Z=1.5$ in a Z-table tells us the area to the left is <strong>0.9332</strong>. This means you scored higher than ~93.3% of the people taking the test!",
+        setup: () => {
+            currentMean = 0; currentStdDev = 5; highlightMode = 'zscore';
+            document.getElementById('controlsArea').classList.add('hidden');
+        }
+    },
+    {
+        title: "7. Standard Normal Table N(Z)",
+        concept: "Below is the Standard Normal Table (Z-Table). It displays the cumulative probability <strong>N(Z)</strong>, which is the shaded area under the curve to the left of your Z-score. <br><br>To read it, find the first two digits of your Z-score (e.g., 1.5) on the left column, and the hundredths digit (e.g., 0.00) across the top row. The intersection gives you the probability area (e.g. 0.9332).",
+        customHtml: generateZTableHtml(),
+        setup: () => {
+            currentMean = 0; currentStdDev = 5; highlightMode = 'ztable';
+            document.getElementById('controlsArea').classList.add('hidden');
+        }
     }
 ];
 
@@ -209,6 +359,11 @@ function updateUI() {
             </div>
         `;
     }
+
+    if (step.customHtml) {
+        html += step.customHtml;
+    }
+
     html += `</div>`;
 
     const contentDiv = document.getElementById('stepContent');
