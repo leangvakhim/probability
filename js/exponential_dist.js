@@ -23,7 +23,7 @@ const steps = [
         hideChart: false
     },
     {
-        title: "2. The Rate Parameter ($\\lambda$)",
+        title: "2. The Rate Parameter (\u03BB)",
         content: `
             <p>The entire distribution is controlled by a single, powerful parameter called the <strong>Rate Parameter</strong>, denoted by the Greek letter <strong>$\\lambda$ (lambda)</strong>.</p>
 
@@ -51,7 +51,7 @@ const steps = [
             <p>The curve you see is the <strong>Probability Density Function (PDF)</strong>. Its formula is:</p>
 
             <div class="text-center my-4">
-                $$f(x) = \lambda e^{-\lambda x}$$
+                $$f(x) = \u03BB e^{-\u03BB x}$$
             </div>
 
             <p><strong>Important:</strong> The Y-axis is <em>density</em>, not direct probability. To find the actual probability of waiting a certain amount of time (say, between 1 and 2 hours), you calculate the <strong>area under the curve</strong> between those two points.</p>
@@ -72,7 +72,7 @@ const steps = [
             <p>Often, we want to know the probability that an event happens <em>before or exactly at</em> a certain time $x$. This is given by the <strong>Cumulative Distribution Function (CDF)</strong>:</p>
 
             <div class="text-center my-4">
-                $$F(x) = 1 - e^{-\lambda x}$$
+                $$F(x) = 1 - e^{-\u03BB x}$$
             </div>
 
             <p>Notice how the chart has changed from a decreasing curve to an "S-shape" that climbs and approaches 1.0 (or 100%).</p>
@@ -93,7 +93,7 @@ const steps = [
             <p>The exponential distribution is famous for being <strong>memoryless</strong>. The math states:</p>
 
             <div class="text-center my-4">
-                $$P(X > x + t \mid X > x) = P(X > t)$$
+                $$P(X > x + t  | X > x) = P(X > t)$$
             </div>
 
             <p>In plain English: The machine doesn't remember how long it has been running.</p>
