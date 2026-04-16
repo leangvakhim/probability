@@ -10,7 +10,6 @@
     <!-- MathJax for rendering math formulas -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        /* Smooth transitions for dynamic content */
         .fade-in {
             animation: fadeIn 0.4s ease-in-out;
         }
@@ -27,13 +26,10 @@
             }
         }
 
-        /* Highlight styling for table columns */
         .highlight-col {
             background-color: #eef2ff;
-            /* Tailwind indigo-50 */
             font-weight: 600;
             color: #4f46e5;
-            /* Tailwind indigo-600 */
         }
     </style>
 </head>
@@ -89,9 +85,7 @@
                 &larr; Previous
             </button>
 
-            <!-- Dots indicator -->
             <div class="flex space-x-2" id="dots-container">
-                <!-- JS will inject dots here -->
             </div>
 
             <button id="btn-next"
