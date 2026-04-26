@@ -43,6 +43,28 @@
             accent-color: #3b82f6;
             /* Tailwind Blue-500 */
         }
+
+        /* Python Code Highlight colors */
+        .py-keyword {
+            color: #c678dd;
+        }
+
+        .py-function {
+            color: #61afef;
+        }
+
+        .py-string {
+            color: #98c379;
+        }
+
+        .py-comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .py-number {
+            color: #d19a66;
+        }
     </style>
 </head>
 
@@ -60,12 +82,13 @@
                 Binomial Distribution
             </h1>
             <div class="text-sm font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full" id="step-indicator">
-                Step 1 of 5
+                Step 1 of 6
             </div>
         </div>
         <!-- Progress Bar -->
         <div class="max-w-6xl mx-auto mt-4 bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div id="progress-bar" class="bg-blue-600 h-1.5 transition-all duration-300 ease-out" style="width: 20%;">
+            <div id="progress-bar" class="bg-blue-600 h-1.5 transition-all duration-300 ease-out"
+                style="width: 16.66%;">
             </div>
         </div>
     </header>
@@ -319,7 +342,7 @@
             <!-- STEP 5: Recap & Formula -->
             <div id="step-4" class="step-content p-8 md:p-12 flex flex-col items-center justify-center hidden fade-in">
                 <div class="text-center max-w-3xl mx-auto mb-8">
-                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Final Step</span>
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Step 5</span>
                     <h2 class="text-3xl font-bold mt-2 mb-4">The Binomial Formula</h2>
                     <p class="text-slate-600 text-lg">
                         Putting it all together, we can summarize everything into one powerful equation. It calculates
@@ -366,6 +389,72 @@
                             <p class="text-sm text-slate-600 mt-2">
                                 The probability of failure ($1-p$) happening the remaining number of times ($n-k$).
                             </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- STEP 6: Python Scipy Implementation -->
+            <div id="step-5" class="step-content p-8 md:p-12 flex flex-col gap-6 hidden fade-in w-full">
+                <div class="text-center max-w-3xl mx-auto mb-4">
+                    <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">Final Step</span>
+                    <h2 class="text-3xl font-bold mt-2 mb-3">Programming with Python (SciPy)</h2>
+                    <p class="text-slate-600">
+                        In practice, data scientists use Python libraries like <code>scipy.stats</code> to compute the
+                        PMF, CDF, Mean, and Variance all at once without writing formulas from scratch. Here is how a
+                        complete script looks for a fixed example ($n=10$, $p=0.5$, $k=5$).
+                    </p>
+                </div>
+
+                <div
+                    class="bg-[#282c34] text-gray-100 rounded-xl shadow-2xl border border-slate-700 w-full max-w-3xl mx-auto overflow-hidden flex flex-col">
+
+                    <!-- Code Editor View -->
+                    <div class="flex flex-col font-mono text-sm w-full">
+                        <!-- Mac-style Window Controls -->
+                        <div class="bg-[#21252b] px-4 py-3 flex items-center gap-2 border-b border-slate-700">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="text-xs text-slate-400 ml-2 text-left">binomial_calc.py</span>
+                        </div>
+
+                        <!-- Code Output (Replaced whitespace-pre with explicit line breaks) -->
+                        <div class="p-6 bg-[#282c34] text-slate-300 leading-relaxed overflow-x-auto text-left">
+                            <span class="py-keyword">from</span> scipy.stats <span class="py-keyword">import</span>
+                            binom<br><br>
+                            <span class="py-comment"># Define fixed parameters</span><br>
+                            n = <span class="py-number">10</span><br>
+                            p = <span class="py-number">0.5</span><br>
+                            k = <span class="py-number">5</span><br><br>
+                            <span class="py-comment"># 1. PMF: Probability of EXACTLY k successes</span><br>
+                            pmf_val = binom.<span class="py-function">pmf</span>(k, n, p)<br>
+                            <span class="py-function">print</span>(f<span class="py-string">"PMF (Exact 5 successes):
+                                {pmf_val:.4f}"</span>)<br><br>
+                            <span class="py-comment"># 2. CDF: Probability of k OR FEWER successes</span><br>
+                            cdf_val = binom.<span class="py-function">cdf</span>(k, n, p)<br>
+                            <span class="py-function">print</span>(f<span class="py-string">"CDF (5 or fewer successes):
+                                {cdf_val:.4f}"</span>)<br><br>
+                            <span class="py-comment"># 3. Stats: Mean and Variance</span><br>
+                            mean, var = binom.<span class="py-function">stats</span>(n, p, moments=<span
+                                class="py-string">'mv'</span>)<br>
+                            <span class="py-function">print</span>(f<span class="py-string">"Mean (Expected successes):
+                                {mean:.2f}"</span>)<br>
+                            <span class="py-function">print</span>(f<span class="py-string">"Variance (Spread):
+                                {var:.2f}"</span>)
+                        </div>
+
+                        <!-- Terminal Output -->
+                        <div class="bg-[#1e2227] p-4 border-t border-slate-700">
+                            <div class="text-xs text-slate-500 mb-2 font-sans tracking-wide text-left">TERMINAL OUTPUT
+                            </div>
+                            <div class="text-[#98c379] font-bold text-left">
+                                &gt; PMF (Exact 5 successes): 0.2461<br>
+                                &gt; CDF (5 or fewer successes): 0.6230<br>
+                                &gt; Mean (Expected successes): 5.00<br>
+                                &gt; Variance (Spread): 2.50
+                            </div>
                         </div>
                     </div>
 

@@ -1,7 +1,7 @@
 // <!-- Logic Script -->
 // -- State Management --
 let currentStep = 0;
-const totalSteps = 5;
+const totalSteps = 6; // Updated to 6 steps
 
 // -- Chart Variables --
 let binomialChart = null;
@@ -30,7 +30,7 @@ function showStep(stepIndex) {
     prevBtn.disabled = (stepIndex === 0);
 
     if (stepIndex === totalSteps - 1) {
-        nextBtn.innerHTML = `Finish Explorer <span class="ml-2">✨</span>`;
+        nextBtn.innerHTML = `Finish`;
         nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
         nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
         nextBtn.disabled = true; // Reached the end
@@ -80,9 +80,19 @@ function combinations(n, k) {
     return factorial(n) / (factorial(k) * factorial(n - k));
 }
 
-// Calculate single binomial probability P(X=k)
+// Calculate single binomial probability P(X=k) (PMF)
 function binomialProbability(n, k, p) {
+    if (k > n || k < 0) return 0;
     return combinations(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+}
+
+// Calculate Cumulative Distribution Function (CDF) P(X <= k)
+function binomialCDF(n, k, p) {
+    let sum = 0;
+    for (let i = 0; i <= k; i++) {
+        sum += binomialProbability(n, i, p);
+    }
+    return sum;
 }
 
 // Generate entire distribution arrays

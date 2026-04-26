@@ -1,4 +1,3 @@
-// <!-- Application Logic -->
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Render Math Equations ---
@@ -12,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- STATE MANAGEMENT ---
-    const totalSteps = 4;
+    const totalSteps = 5; // Updated to 5 steps
     let currentStep = 0;
 
-    // --- DOM ELEMENTS (Declared upfront to prevent ReferenceErrors) ---
+    // --- DOM ELEMENTS ---
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const progressDotsContainer = document.getElementById('progress-dots');
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chartInstance = null;
     const lambdaSlider = document.getElementById('lambdaSlider');
     const lambdaValueSpan = document.getElementById('lambdaValue');
-    const interpLambdaSpans = document.querySelectorAll('#interp-lambda');
+    const interpLambdaSpans = document.querySelectorAll('[id^="interp-lambda"]');
 
     // --- INITIALIZATION ---
     initProgressDots();
@@ -66,20 +65,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Step Visibility
         for (let i = 0; i < totalSteps; i++) {
             const stepDiv = document.getElementById(`step-${i}`);
-            if (i === currentStep) {
-                stepDiv.classList.add('step-active');
-            } else {
-                stepDiv.classList.remove('step-active');
+            if (stepDiv) {
+                if (i === currentStep) {
+                    stepDiv.classList.add('step-active');
+                } else {
+                    stepDiv.classList.remove('step-active');
+                }
             }
 
             // Update Dots
             const dot = document.getElementById(`dot-${i}`);
-            if (i === currentStep) {
-                dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300 bg-white text-indigo-600 shadow-md ring-4 ring-indigo-300';
-            } else if (i < currentStep) {
-                dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300 bg-indigo-300 text-indigo-700';
-            } else {
-                dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300 bg-indigo-500 text-indigo-200';
+            if (dot) {
+                if (i === currentStep) {
+                    dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300 bg-white text-indigo-600 shadow-md ring-4 ring-indigo-300';
+                } else if (i < currentStep) {
+                    dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300 bg-indigo-300 text-indigo-700';
+                } else {
+                    dot.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300 bg-indigo-500 text-indigo-200';
+                }
             }
         }
 
@@ -98,14 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentStep === 0) setupTimelineAnimation();
         if (currentStep === 1) initChart();
 
-        // Ensure math renders if user navigates dynamically back and forth
-        if (currentStep === 3 && window.renderMathInElement) {
-            renderMathInElement(document.getElementById('step-3'), {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$', right: '$', display: false }
-                ]
-            });
+        // Ensure math renders if user navigates dynamically back and forth (For steps 4 and 5)
+        if ((currentStep === 3 || currentStep === 4) && window.renderMathInElement) {
+            const currentStepEl = document.getElementById(`step-${currentStep}`);
+            if (currentStepEl) {
+                renderMathInElement(currentStepEl, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
         }
     }
 
@@ -195,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- STEP 2: CHART LOGIC ---
     // Generate Poisson Data
-    // Uses iterative calculation for numerical stability: P(x=k) = P(x=k-1) * (lambda/k)
     function calculatePoissonData(lambda, maxK = 30) {
         let data = [];
         let p = Math.exp(-lambda); // P(x=0)
