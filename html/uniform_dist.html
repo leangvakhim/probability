@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            <!-- Right Side: Visualization / Formulas -->
+            <!-- Right Side: Visualization / Formulas / Code -->
             <div class="w-full md:w-7/12 p-6 md:p-8 flex items-center justify-center bg-white relative min-h-0">
 
                 <!-- Canvas for Steps 1-4 -->
@@ -168,6 +168,57 @@
                                     <span class="ml-2 text-sm text-slate-500">(for a &le; x &le; b)</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Python Container for Step 6 -->
+                <div id="python-container"
+                    class="hidden w-full max-w-lg fade-in overflow-y-auto max-h-full pr-2 scrollable-content">
+                    <div class="py-2">
+                        <h3 class="text-xl font-bold mb-4 text-slate-800">Applying it in Python</h3>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            Instead of calculating by hand, data scientists use <code
+                                class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600 font-mono text-xs">scipy.stats</code>
+                            to automate this. Let's model our Subway example where wait times are Uniformly distributed
+                            between 0 and 10 minutes.
+                        </p>
+
+                        <div
+                            class="bg-slate-800 text-slate-50 rounded-lg p-5 text-sm font-mono overflow-x-auto shadow-inner mb-4 leading-relaxed">
+                            <pre><code><span class="text-pink-400">from</span> scipy.stats <span class="text-pink-400">import</span> uniform
+
+<span class="text-slate-400 italic"># 1. Define U(0, 10)</span>
+<span class="text-slate-400 italic"># SciPy uses 'loc' for 'a' and 'scale' for 'b - a'</span>
+a = <span class="text-amber-400">0</span>
+scale = <span class="text-amber-400">10</span> - a
+dist = uniform(loc=a, scale=scale)
+
+<span class="text-slate-400 italic"># 2. PDF: Height of the distribution curve at x=5</span>
+pdf_val = dist.pdf(<span class="text-amber-400">5</span>)
+<span class="text-cyan-300">print</span>(pdf_val) <span class="text-slate-400 italic"># Output: 0.1</span>
+
+<span class="text-slate-400 italic"># 3. CDF: Probability of waiting 5 mins OR LESS</span>
+cdf_val = dist.cdf(<span class="text-amber-400">5</span>)
+<span class="text-cyan-300">print</span>(cdf_val) <span class="text-slate-400 italic"># Output: 0.5 (50% chance)</span>
+
+<span class="text-slate-400 italic"># 4. Mean: Expected average wait time</span>
+mean_val = dist.mean()
+<span class="text-cyan-300">print</span>(mean_val) <span class="text-slate-400 italic"># Output: 5.0 minutes</span>
+
+<span class="text-slate-400 italic"># 5. Variance: Spread of the wait times</span>
+var_val = dist.var()
+<span class="text-cyan-300">print</span>(var_val) <span class="text-slate-400 italic"># Output: 8.333...</span>
+</code></pre>
+                        </div>
+
+                        <div
+                            class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded text-sm text-slate-700 shadow-sm">
+                            <strong>Pro-Tip:</strong> The <code>cdf()</code> method is perfect for finding probability
+                            ranges. What's the chance of waiting between 3 and 5 minutes? Just subtract them: <br><br>
+                            <code
+                                class="bg-white px-2 py-1 rounded text-indigo-700 border border-indigo-100 font-mono">dist.cdf(5) - dist.cdf(3)</code>
+                            = <strong>0.2 (20%)</strong>
                         </div>
                     </div>
                 </div>

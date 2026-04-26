@@ -198,9 +198,14 @@ const stepsData = [
         desc: "To summarize, the Uniform Distribution is defined by its lowest value (a) and highest value (b). Because everything in between is perfectly flat, the math relies on simple rectangles.<br><br>Here are the core mathematical formulas that define the Continuous Uniform Distribution.",
         example: "<strong>Why these matter:</strong> These formulas allow statisticians to quickly calculate the expected value (mean), the spread (variance), and the exact probability of any range of events occurring within a uniform system.",
         type: 'html',
-        draw: () => {
-            // Canvas is hidden, HTML shown via renderStep logic
-        }
+        draw: () => { }
+    },
+    {
+        title: "Python Implementation",
+        desc: "In modern data science, calculating these probabilities manually is rare. Instead, we use computational libraries like Python's <strong>SciPy</strong> to quickly generate our continuous distributions and retrieve the CDF, PDF, Mean, and Variance.",
+        example: "<strong>Important Note:</strong> The <code>scipy.stats.uniform</code> function takes two main parameters: <code>loc</code> (which is your start point <em>a</em>) and <code>scale</code> (which is the width of your rectangle, equal to <em>b - a</em>).",
+        type: 'python',
+        draw: () => { }
     }
 ];
 
@@ -216,6 +221,7 @@ const nextBtn = document.getElementById('nextBtn');
 const dotsContainer = document.getElementById('dots-container');
 const canvasEl = document.getElementById('vizCanvas');
 const formulaEl = document.getElementById('formula-container');
+const pythonEl = document.getElementById('python-container');
 const textContainer = document.getElementById('text-container');
 
 // Initialize UI
@@ -306,10 +312,11 @@ function renderStep() {
 
     triggerTextAnimation();
 
-    // Handle Visuals Swap (Canvas vs HTML Formulas)
+    // Handle Visuals Swap (Canvas vs HTML Formulas vs Python)
     if (data.type === 'canvas') {
         canvasEl.classList.remove('hidden');
         formulaEl.classList.add('hidden');
+        pythonEl.classList.add('hidden');
 
         // Add fade animation to canvas
         canvasEl.classList.remove('fade-in');
@@ -317,13 +324,22 @@ function renderStep() {
         canvasEl.classList.add('fade-in');
 
         data.draw();
-    } else {
+    } else if (data.type === 'html') {
         canvasEl.classList.add('hidden');
+        pythonEl.classList.add('hidden');
         formulaEl.classList.remove('hidden');
 
         formulaEl.classList.remove('fade-in');
         void formulaEl.offsetWidth;
         formulaEl.classList.add('fade-in');
+    } else if (data.type === 'python') {
+        canvasEl.classList.add('hidden');
+        formulaEl.classList.add('hidden');
+        pythonEl.classList.remove('hidden');
+
+        pythonEl.classList.remove('fade-in');
+        void pythonEl.offsetWidth;
+        pythonEl.classList.add('fade-in');
     }
 
     // Update Navigation Buttons state
