@@ -1,4 +1,3 @@
-// --- Canvas & Math Setup ---
 const canvas = document.getElementById('distCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -17,7 +16,7 @@ window.addEventListener('resize', () => {
 // Parameters for the distribution
 let currentMean = 0;
 let currentStdDev = 5;
-let highlightMode = 'none'; // 'none', 'empirical', 'zscore', 'ztable'
+let highlightMode = 'none'; // 'none', 'empirical', 'zscore', 'ztable', 'python'
 
 // The Gaussian function
 function gaussian(x, mean, stdDev) {
@@ -159,6 +158,42 @@ function drawCurve() {
         ctx.fillText('N(Z) = shaded area', mapX(xMin) + 20, mapY(maxY * 0.8));
     }
 
+    // Draw shaded region for Python step
+    if (highlightMode === 'python') {
+        const targetZ = 1.5;
+        const targetX = currentMean + (targetZ * currentStdDev);
+
+        // Shade area to the left
+        ctx.beginPath();
+        ctx.moveTo(mapX(xMin), mapY(0));
+        for (let x = xMin; x <= targetX; x += 0.2) {
+            ctx.lineTo(mapX(x), mapY(gaussian(x, currentMean, currentStdDev)));
+        }
+        ctx.lineTo(mapX(targetX), mapY(0));
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.3)'; // purple-500 semi-transparent
+        ctx.fill();
+
+        // Draw marker line
+        ctx.beginPath();
+        ctx.moveTo(mapX(targetX), mapY(0));
+        ctx.lineTo(mapX(targetX), mapY(gaussian(targetX, currentMean, currentStdDev)));
+        ctx.strokeStyle = '#9333ea'; // purple-600
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Python specific labels
+        ctx.fillStyle = '#9333ea';
+        ctx.font = 'bold 13px sans-serif';
+
+        // Label for area
+        ctx.textAlign = 'right';
+        ctx.fillText('norm.cdf() = Area', mapX(targetX) - 15, mapY(maxY * 0.35));
+
+        // Label for x-axis value (Moved UP and to the right to be clearly visible)
+        ctx.textAlign = 'left';
+        ctx.fillText('norm.ppf() = X Value', mapX(targetX) + 8, mapY(0) - 30);
+    }
+
     // Draw the bell curve path
     ctx.beginPath();
     for (let x = xMin; x <= xMax; x += 0.2) {
@@ -260,8 +295,7 @@ const steps = [
             document.getElementById('meanControl').classList.remove('hidden');
             document.getElementById('stdDevControl').classList.add('hidden');
 
-            // Render math inside labels
-            katex.render("\\mu", document.getElementById('meanMath'));
+            if(window.katex) katex.render("\\mu", document.getElementById('meanMath'));
         }
     },
     {
@@ -275,11 +309,10 @@ const steps = [
             document.getElementById('meanControl').classList.add('hidden');
             document.getElementById('stdDevControl').classList.remove('hidden');
 
-            // Reset slider for this step
             document.getElementById('stdDevSlider').value = currentStdDev;
             document.getElementById('stdDevValue').textContent = currentStdDev;
 
-            katex.render("\\sigma", document.getElementById('sdMath'));
+            if(window.katex) katex.render("\\sigma", document.getElementById('sdMath'));
         }
     },
     {
@@ -320,6 +353,37 @@ const steps = [
         customHtml: generateZTableHtml(),
         setup: () => {
             currentMean = 0; currentStdDev = 5; highlightMode = 'ztable';
+            document.getElementById('controlsArea').classList.add('hidden');
+        }
+    },
+    {
+        title: "8. Beyond Tables: Python Scipy",
+        concept: "While Z-tables are great for learning the theory, data scientists use software. In Python, the <code>scipy.stats</code> library calculates these exact probabilities instantly—no manual Z-score conversion needed!",
+        customHtml: `
+            <div class="bg-slate-900 text-slate-100 p-5 rounded-xl mt-4 shadow-sm overflow-x-auto text-sm font-mono leading-relaxed">
+                <span class="text-pink-400">from</span> scipy.stats <span class="text-pink-400">import</span> norm<br><br>
+
+                <span class="text-slate-400"># 1. norm.cdf() : Finds Area/Probability</span><br>
+                <span class="text-slate-400"># "What's the probability of scoring 85 or less?"</span><br>
+                <span class="text-slate-400"># Note: x is the raw score, loc = mean (μ), scale = standard deviation (σ)</span><br>
+                prob = norm.cdf(x=<span class="text-orange-300">85</span>, loc=<span class="text-orange-300">70</span>, scale=<span class="text-orange-300">10</span>)<br>
+                <span class="text-blue-400">print</span>(<span class="text-green-300">f"Probability: {prob:.4f}"</span>)<br> <span class="text-slate-400"># Output: 0.9332</span><br><br>
+
+                <span class="text-slate-400"># 2. norm.ppf() : Finds the Value (Inverse CDF)</span><br>
+                <span class="text-slate-400"># "What exact score puts you in the top 10% (0.90)?"</span><br>
+                score = norm.ppf(q=<span class="text-orange-300">0.90</span>, loc=<span class="text-orange-300">70</span>, scale=<span class="text-orange-300">10</span>)<br>
+                <span class="text-blue-400">print</span>(<span class="text-green-300">f"90th Percentile Score: {score:.1f}"</span>)<br> <span class="text-slate-400"># Output: 82.8</span><br><br>
+
+                <span class="text-slate-400"># 3. norm.cdf() with a Z-score</span><br>
+                <span class="text-slate-400"># "What is the area if we already calculated Z = 1.5?"</span><br>
+                z_prob = norm.cdf(<span class="text-orange-300">1.5</span>)<br>
+                <span class="text-blue-400">print</span>(<span class="text-green-300">f"Probability for Z=1.5: {z_prob:.4f}"</span>)<br> <span class="text-slate-400"># Output: 0.9332</span>
+            </div>
+        `,
+        exampleTitle: "Understanding the functions:",
+        example: "<ul class='list-disc pl-5 space-y-3 mt-2 text-sm text-slate-700'><li><strong>norm.cdf with raw data:</strong> You give it the raw data value ($x=85$), the mean (<code>loc=70</code>), and the standard deviation (<code>scale=10</code>). Python calculates the Z-score behind the scenes for you and returns the shaded area.</li><li><strong>norm.ppf (Percent Point Function):</strong> The exact reverse! You give it the probability area (e.g., $q=0.90$), along with <code>loc</code> (mean $\\mu$) and <code>scale</code> (standard deviation $\\sigma$), and it returns the specific raw X-axis value you need.</li><li><strong>norm.cdf with a Z-score:</strong> If you omit <code>loc</code> and <code>scale</code>, Python defaults to a Standard Normal Curve ($\\mu=0$, $\\sigma=1$). This means you can pass a calculated Z-score directly (like <code>1.5</code>) and it will give you the exact same result as passing the raw data!</li></ul>",
+        setup: () => {
+            currentMean = 0; currentStdDev = 5; highlightMode = 'python';
             document.getElementById('controlsArea').classList.add('hidden');
         }
     }
@@ -375,20 +439,21 @@ function updateUI() {
     contentDiv.classList.add('fade-in');
 
     // Render equations if present
-    if (step.equation) {
-        katex.render(step.equation, document.getElementById('equation-container'), { displayMode: true });
-    }
-
-    // Render inline math in text (using a simple regex replacer for this isolated case)
-    const textNodes = contentDiv.querySelectorAll('p, div.text-sm, li');
-    textNodes.forEach(node => {
-        if (node.innerHTML.includes('$')) {
-            // Quick and dirty inline math rendering for strings wrapped in $...$
-            node.innerHTML = node.innerHTML.replace(/\$(.*?)\$/g, (match, formula) => {
-                return katex.renderToString(formula, { throwOnError: false });
-            });
+    if (window.katex) {
+        if (step.equation) {
+            katex.render(step.equation, document.getElementById('equation-container'), { displayMode: true });
         }
-    });
+
+        // Render inline math in text (using a simple regex replacer for this isolated case)
+        const textNodes = contentDiv.querySelectorAll('p, div.text-sm, li');
+        textNodes.forEach(node => {
+            if (node.innerHTML.includes('$')) {
+                node.innerHTML = node.innerHTML.replace(/\$(.*?)\$/g, (match, formula) => {
+                    return katex.renderToString(formula, { throwOnError: false });
+                });
+            }
+        });
+    }
 
     // Update buttons
     document.getElementById('prevBtn').disabled = currentStep === 0;
@@ -399,7 +464,7 @@ function updateUI() {
     indicators.innerHTML = '';
     for (let i = 0; i < steps.length; i++) {
         const dot = document.createElement('div');
-        dot.className = `w-2.5 h-2.5 rounded-full transition-colors ${i === currentStep ? 'bg-blue-600' : 'bg-slate-300'}`;
+        dot.className = `w-2 h-2 rounded-full transition-colors ${i === currentStep ? 'bg-blue-600 w-4' : 'bg-slate-300'}`;
         indicators.appendChild(dot);
     }
 }
@@ -443,5 +508,13 @@ stdDevSlider.addEventListener('input', (e) => {
 // --- Initialization ---
 window.onload = () => {
     resizeCanvas();
-    updateUI();
+    // Fallback interval to ensure Katex is loaded before initial render
+    let attempts = 0;
+    const initInterval = setInterval(() => {
+        if (window.katex || attempts > 10) {
+            clearInterval(initInterval);
+            updateUI();
+        }
+        attempts++;
+    }, 100);
 };
