@@ -1,3 +1,4 @@
+// <!-- Integrated JavaScript -->
 // --- Step Data Configuration ---
 const steps = [
     {
@@ -110,7 +111,41 @@ const steps = [
         hideChart: false
     },
     {
-        title: "6. Summary & Formulas",
+        title: "6. Python Implementation (SciPy)",
+        content: `
+            <p>You can easily calculate and visualize these properties using Python's <code>scipy.stats</code> library.</p>
+
+            <pre class="bg-slate-800 text-slate-100 p-4 rounded-lg my-4 text-[13px] overflow-x-auto font-mono shadow-inner leading-relaxed"><code><span class="text-emerald-400">from</span> scipy.stats <span class="text-emerald-400">import</span> expon
+
+<span class="text-slate-400"># 1. Define lambda and convert to SciPy's scale</span>
+lam = <span class="text-orange-300">2.0</span>
+scale_param = <span class="text-orange-300">1</span> / lam
+
+<span class="text-slate-400"># 2. Probability Density Function (PDF) at x=1</span>
+pdf_val = expon.pdf(<span class="text-orange-300">1</span>, scale=scale_param)
+<span class="text-slate-400"># Output: 0.27067...</span>
+
+<span class="text-slate-400"># 3. Cumulative Distribution Function (CDF) at x=1</span>
+cdf_val = expon.cdf(<span class="text-orange-300">1</span>, scale=scale_param)
+<span class="text-slate-400"># Output: 0.86466...</span>
+
+<span class="text-slate-400"># 4. Mean and Variance</span>
+mean, var = expon.stats(scale=scale_param, moments=<span class="text-yellow-300">'mv'</span>)
+<span class="text-slate-400"># Output: mean = 0.5, var = 0.25</span></code></pre>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 my-4 rounded-r-lg">
+                <h4 class="font-bold text-amber-800 mb-1">Crucial Note for Python!</h4>
+                <p class="text-sm text-amber-900">In <code>scipy.stats.expon</code>, the methods do not accept $\\lambda$ directly. Instead, you <strong>must</strong> pass a <code>scale</code> parameter, which is exactly the inverse of the rate parameter: <strong>scale = $1 / \\lambda$</strong>.</p>
+            </div>
+        `,
+        chartType: 'none',
+        showControls: false,
+        defaultLambda: 1.0,
+        hideChart: false,
+        fullWidth: true
+    },
+    {
+        title: "7. Summary & Formulas",
         content: `
             <p>You have successfully explored the core concepts of the Exponential Distribution!</p>
             <p class="mt-4">We covered:</p>
@@ -120,6 +155,7 @@ const steps = [
                 <li>The Probability Density Function (PDF).</li>
                 <li>The Cumulative Distribution Function (CDF).</li>
                 <li>The fascinating "Memoryless Property".</li>
+                <li>Implementing it programmatically in Python.</li>
             </ul>
             <p class="mt-6 text-indigo-700 font-bold">Review the cheat sheet on the right for all standard formulas &rarr;</p>
         `,
@@ -136,6 +172,8 @@ let currentLambda = 1.0;
 let chartInstance = null;
 
 // --- DOM Elements ---
+const elLeftPanel = document.getElementById('left-panel');
+const elRightPanel = document.getElementById('right-panel');
 const elTitle = document.getElementById('step-title');
 const elContent = document.getElementById('step-content');
 const elStepIndicator = document.getElementById('step-indicator');
@@ -202,8 +240,8 @@ function renderStep() {
     elContent.innerHTML = stepData.content;
     elStepIndicator.textContent = currentStep + 1;
 
-    // Render MathJax
-    if (window.MathJax) {
+    // Render MathJax safely
+    if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
         MathJax.typesetPromise([elContent]).catch((err) => console.log('MathJax Error:', err));
     }
 
@@ -216,17 +254,30 @@ function renderStep() {
 
     // Default lambda reset on step change if desired, or keep user choice.
     // Let's reset it to 1.0 on new steps to avoid confusion, except when navigating back to controls.
-    if (!stepData.showControls) {
+    if (!stepData.showControls || currentStep === 5) { // Force reset on the python step
         currentLambda = stepData.defaultLambda;
         elLambdaSlider.value = currentLambda;
         elLambdaValue.textContent = currentLambda.toFixed(1);
+    }
+
+    // Layout Adjustments (Full Width vs Split)
+    if (stepData.fullWidth) {
+        elLeftPanel.classList.remove('md:w-5/12');
+        elLeftPanel.classList.add('w-full');
+        elRightPanel.classList.add('hidden');
+        elRightPanel.classList.remove('flex');
+    } else {
+        elLeftPanel.classList.remove('w-full');
+        elLeftPanel.classList.add('md:w-5/12');
+        elRightPanel.classList.remove('hidden');
+        elRightPanel.classList.add('flex');
     }
 
     // Update Chart visibility
     if (stepData.hideChart) {
         elRecapOverlay.classList.remove('hidden');
         elRecapOverlay.classList.add('flex');
-        if (window.MathJax) {
+        if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
             MathJax.typesetPromise([elRecapOverlay]).catch(console.log);
         }
     } else {
@@ -284,12 +335,16 @@ function updateChart() {
     if (stepData.hideChart) return;
 
     const chartType = stepData.chartType;
-    const { labels, data1, data2 } = generateData(chartType, currentLambda);
 
     // Destroy previous instance
     if (chartInstance) {
         chartInstance.destroy();
+        chartInstance = null;
     }
+
+    if (chartType === 'none') return;
+
+    const { labels, data1, data2 } = generateData(chartType, currentLambda);
 
     let datasets = [];
 
